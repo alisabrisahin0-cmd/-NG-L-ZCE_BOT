@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="ÜSTAT APP - AI Destekli İngilizce Öğrenme Platformu">
+    <title>ÜSTAT APP - AI İngilizce Öğrenme</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="msapplication-TileColor" content="#4F46E5">
+    
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ÜSTAT APP">
+    <link rel="apple-touch-icon" href="/assets/icon-192.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icon-16.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 2L2 9L16 16L30 9L16 2Z" fill="#4F46E5"/>
+                    <path d="M2 23L16 30L30 23V9L16 16L2 9V23Z" fill="#818CF8"/>
+                </svg>
+                <h1>ÜSTAT APP</h1>
+            </div>
+            <div class="header-right">
+                <div class="streak">
+                    <span class="streak-icon">🔥</span>
+                    <span class="streak-count">0</span>
+                    <span class="streak-label">gün</span>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">AS</div>
+                    <div class="user-info">
+                        <span class="user-name">Ali Sabri Şahin</span>
+                        <span class="user-level">A2 → B1/B2</span>
+                    </div>
+                </div>
+                <button class="settings-btn" id="settingsBtn" title="Ayarlar">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <button class="nav-item active" data-module="dashboard">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                </svg>
+                <span>Dashboard</span>
+            </button>
+            <button class="nav-item" data-module="ai-chat">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
+                    <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
+                </svg>
+                <span>AI Konuşma</span>
+            </button>
+            <button class="nav-item" data-module="speaking">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z"/>
+                    <path d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"/>
+                </svg>
+                <span>Speaking</span>
+            </button>
+            <button class="nav-item" data-module="pronunciation">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z"/>
+                </svg>
+                <span>Telaffuz</span>
+            </button>
+            <button class="nav-item" data-module="vocabulary">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                </svg>
+                <span>Kelime</span>
+            </button>
+            <button class="nav-item" data-module="grammar">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                </svg>
+                <span>Gramer</span>
+            </button>
+            <button class="nav-item" data-module="checklist">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                </svg>
+                <span>Günlük Plan</span>
+            </button>
+            <button class="nav-item" data-module="progress">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                </svg>
+                <span>İlerleme</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="quick-stats">
+                    <h3>Bugün</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Öğrenilen Kelime</span>
+                        <span class="stat-value" id="todayWords">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Tamamlanan Egzersiz</span>
+                        <span class="stat-value" id="todayExercises">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Çalışma Süresi</span>
+                        <span class="stat-value" id="todayTime">0 dk</span>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h3>Hızlı Erişim</h3>
+                    <button class="quick-action-btn" data-action="daily-practice">
+                        <span>📝</span>
+                        <span>Günlük Pratik</span>
+                    </button>
+                    <button class="quick-action-btn" data-action="vocabulary-review">
+                        <span>📚</span>
+                        <span>Kelime Tekrarı</span>
+                    </button>
+                    <button class="quick-action-btn" data-action="pronunciation-drill">
+                        <span>🗣️</span>
+                        <span>Telaffuz Çalışması</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <section class="content" id="mainContent">
+                <!-- Dynamic content will be loaded here -->
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-stats">
+                <div class="footer-stat">
+                    <span class="footer-stat-label">Toplam Kelime</span>
+                    <span class="footer-stat-value" id="totalWords">0</span>
+                </div>
+                <div class="footer-stat">
+                    <span class="footer-stat-label">Toplam Egzersiz</span>
+                    <span class="footer-stat-value" id="totalExercises">0</span>
+                </div>
+                <div class="footer-stat">
+                    <span class="footer-stat-label">Son Aktivite</span>
+                    <span class="footer-stat-value" id="lastActivity">-</span>
+                </div>
+            </div>
+            <div class="footer-info">
+                <p>© 2026 ÜSTAT APP - AI Destekli İngilizce Öğrenme Platformu</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ayarlar</h2>
+                <button class="modal-close" id="closeSettings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="aiProvider">AI Sağlayıcı</label>
+                    <select id="aiProvider">
+                        <option value="groq">Groq Llama 3.3 (Ücretsiz & Hızlı) ⚡</option>
+                        <option value="gemini">Google Gemini (Ücretsiz)</option>
+                        <option value="openai">OpenAI GPT-4 (Ücretli)</option>
+                        <option value="claude">Anthropic Claude (Ücretli)</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="apiKey">API Anahtarı</label>
+                    <input type="password" id="apiKey" placeholder="API anahtarınızı girin">
+                    <small>API anahtarınız sadece tarayıcınızda saklanır.</small>
+                </div>
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="voiceEnabled" checked>
+                        Ses Çıkışını Etkinleştir
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label>
+                        <input type="checkbox" id="notificationsEnabled">
+                        Bildirimleri Etkinleştir
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <button class="btn btn-primary" id="saveSettings">Ayarları Kaydet</button>
+                    <button class="btn btn-secondary" id="resetData">Verileri Sıfırla</button>
+                </div>
+                
+                <!-- Google Keep Integration -->
+                <div class="setting-group" style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #E5E7EB;">
+                    <h3 style="margin-bottom: 15px;">📝 Google Keep Entegrasyonu</h3>
+                    <p style="font-size: 14px; color: #6B7280; margin-bottom: 15px;">
+                        Google Keep'teki kelime notlarınızı buradan içe aktarın
+                    </p>
+                    
+                    <label for="keepWordsText">Kelime Listesi</label>
+                    <textarea
+                        id="keepWordsText"
+                        rows="8"
+                        placeholder="Google Keep'ten kopyaladığınız kelimeleri buraya yapıştırın...
+
+Örnek formatlar:
+resign - istifa etmek
+polyester: polyester
+freight = navlun
+Bill of Lading | konşimento
+terminate (işten çıkarmak)"
+                        style="width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-family: monospace; font-size: 13px;"></textarea>
+                    
+                    <div style="display: flex; gap: 8px; margin-top: 12px;">
+                        <button class="btn btn-primary" id="parseKeepWordsBtn" style="flex: 1;">
+                            🤖 AI ile Akıllı Parse
+                        </button>
+                        <button class="btn btn-secondary" id="manualParseBtn" style="flex: 1;">
+                            📝 Manuel Parse
+                        </button>
+                    </div>
+                    
+                    <small style="display: block; margin-top: 8px; color: #6B7280;">
+                        💡 İpucu: AI ile parse daha akıllı - kategorilere ayırır ve örnek cümleler oluşturur
+                    </small>
+                </div>
+                
+                <!-- Flalingo Report Upload -->
+                <div class="setting-group" style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #E5E7EB;">
+                    <h3 style="margin-bottom: 15px;">📄 Flalingo Öğretmen Raporu</h3>
+                    <p style="font-size: 14px; color: #6B7280; margin-bottom: 15px;">
+                        Öğretmeninizden aldığınız raporu yükleyin - AI otomatik analiz edip eğitiminizi şekillendirecek
+                    </p>
+                    
+                    <label for="reportText">Rapor Metni</label>
+                    <textarea
+                        id="reportText"
+                        rows="10"
+                        placeholder="Flalingo öğretmen raporunu buraya yapıştırın...
+
+Örnek:
+Student shows good progress in vocabulary. However, consistently uses present tense instead of past simple. Examples: 'I go yesterday', 'I work last week'. Also confuses he/she pronouns. Recommendation: Focus on Past Simple transformation drills and pronoun practice. Overall level: A2. Next goals: Master Past Simple, reduce he/she errors by 50%."
+                        style="width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px;"></textarea>
+                    
+                    <div style="display: flex; gap: 8px; margin-top: 12px;">
+                        <button class="btn btn-primary" id="analyzeReportBtn" style="flex: 1;">
+                            🤖 Raporu Analiz Et ve Sisteme Ekle
+                        </button>
+                    </div>
+                    
+                    <small style="display: block; margin-top: 8px; color: #6B7280;">
+                        🎯 Rapor analiz edilince: Hatalarınız kaydedilir, zayıf alanlar belirlenir, günlük plan oluşturulur
+                    </small>
+                    
+                    <!-- Report History -->
+                    <div id="reportHistorySection" style="margin-top: 20px; display: none;">
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">📊 Rapor Geçmişi</h4>
+                        <div id="reportHistoryList" style="max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Yükleniyor...</p>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="toast-message"></span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js" type="module"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Service Worker kaydet
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration.scope);
+                        
+                        // Update kontrolü
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Yeni versiyon var
+                                    if (confirm('🎉 Yeni versiyon mevcut! Güncellemek ister misiniz?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+        
+        // Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Install butonu göster (opsiyonel)
+            console.log('💡 PWA yüklenebilir!');
+            
+            // Kullanıcıya göster
+            setTimeout(() => {
+                if (confirm('📱 Flalingo\'yu ana ekrana eklemek ister misiniz?')) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('✅ PWA yüklendi');
+                        }
+                        deferredPrompt = null;
+                    });
+                }
+            }, 5000); // 5 saniye sonra sor
+        });
+        
+        // PWA yüklendi
+        window.addEventListener('appinstalled', () => {
+            console.log('🎉 PWA başarıyla yüklendi!');
+        });
+    </script>
+</body>
+</html>
