@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini API Test - Nokta Atışı</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .test-box {
+            background: #252526;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007acc;
+        }
+        .success { border-left-color: #4ec9b0; }
+        .error { border-left-color: #f48771; }
+        .warning { border-left-color: #dcdcaa; }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover { background: #005a9e; }
+        button:disabled { background: #3e3e42; cursor: not-allowed; }
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #3c3c3c;
+            border: 1px solid #555;
+            color: #d4d4d4;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        pre {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            border: 1px solid #3e3e42;
+        }
+        .status { 
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.ok { background: #4ec9b0; color: #000; }
+        .status.fail { background: #f48771; color: #000; }
+        .status.pending { background: #dcdcaa; color: #000; }
+        h1 { color: #4ec9b0; }
+        h2 { color: #569cd6; font-size: 18px; }
+        .log { 
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 11px;
+        }
+        .log-entry {
+            padding: 5px;
+            border-bottom: 1px solid #3e3e42;
+        }
+        .log-error { color: #f48771; }
+        .log-success { color: #4ec9b0; }
+        .log-info { color: #569cd6; }
+    </style>
+</head>
+<body>
+    <h1>🔬 Gemini API - Kapsamlı Test Sistemi</h1>
+    
+    <div class="test-box">
+        <h2>📝 API Anahtarı</h2>
+        <input type="password" id="apiKeyInput" placeholder="Gemini API anahtarınızı buraya yapıştırın">
+        <button onclick="saveApiKey()">Anahtarı Kaydet</button>
+        <div id="keyStatus"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>🧪 Test Senaryoları</h2>
+        <button onclick="testAll()">🚀 Tüm Testleri Çalıştır</button>
+        <button onclick="test1()">Test 1: API Key Kontrolü</button>
+        <button onclick="test2()">Test 2: Model Listesi</button>
+        <button onclick="test3()">Test 3: gemini-pro</button>
+        <button onclick="test4()">Test 4: gemini-1.5-flash (v1)</button>
+        <button onclick="test5()">Test 5: gemini-1.5-flash (v1beta)</button>
+        <button onclick="test6()">Test 6: gemini-1.5-pro</button>
+        <button onclick="clearLog()">🗑️ Logları Temizle</button>
+    </div>
+
+    <div class="test-box">
+        <h2>📊 Test Sonuçları</h2>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>📋 Detaylı Log</h2>
+        <div id="log" class="log"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>💡 Öneriler</h2>
+        <div id="recommendations"></div>
+    </div>
+
+    <script>
+        let apiKey = '';
+        let testResults = {};
+        let logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            logs.push({ timestamp, message, type });
+            updateLogDisplay();
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateLogDisplay() {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML = logs.map(l => 
+                `<div class="log-entry log-${l.type}">[${l.timestamp}] ${l.message}</div>`
+            ).join('');
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            logs = [];
+            updateLogDisplay();
+        }
+
+        function saveApiKey() {
+            apiKey = document.getElementById('apiKeyInput').value.trim();
+            if (apiKey) {
+                localStorage.setItem('gemini_test_key', apiKey);
+                document.getElementById('keyStatus').innerHTML = 
+                    '<span class="status ok">✓ API Anahtarı Kaydedildi</span>';
+                log('API anahtarı kaydedildi', 'success');
+            } else {
+                document.getElementById('keyStatus').innerHTML = 
+                    '<span class="status fail">✗ API Anahtarı Boş</span>';
+                log('API anahtarı boş!', 'error');
+            }
+        }
+
+        function loadApiKey() {
+            const saved = localStorage.getItem('gemini_test_key');
+            if (saved) {
+                apiKey = saved;
+                document.getElementById('apiKeyInput').value = apiKey;
+                document.getElementById('keyStatus').innerHTML = 
+                    '<span class="status ok">✓ Kaydedilmiş Anahtar Yüklendi</span>';
+            }
+        }
+
+        async function testAll() {
+            log('=== TÜM TESTLER BAŞLATILIYOR ===', 'info');
+            testResults = {};
+            
+            await test1();
+            await sleep(1000);
+            await test2();
+            await sleep(1000);
+            await test3();
+            await sleep(1000);
+            await test4();
+            await sleep(1000);
+            await test5();
+            await sleep(1000);
+            await test6();
+            
+            generateRecommendations();
+        }
+
+        async function test1() {
+            log('TEST 1: API Key Kontrolü', 'info');
+            
+            if (!apiKey) {
+                testResults.test1 = { success: false, message: 'API anahtarı girilmemiş' };
+                log('❌ API anahtarı yok', 'error');
+                updateResults();
+                return;
+            }
+
+            if (apiKey.length < 30) {
+                testResults.test1 = { success: false, message: 'API anahtarı çok kısa (geçersiz olabilir)' };
+                log('⚠️ API anahtarı şüpheli derecede kısa', 'error');
+                updateResults();
+                return;
+            }
+
+            testResults.test1 = { success: true, message: 'API anahtarı formatı geçerli görünüyor' };
+            log('✅ API anahtarı formatı OK', 'success');
+            updateResults();
+        }
+
+        async function test2() {
+            log('TEST 2: Mevcut Modelleri Listeleme', 'info');
+            
+            if (!apiKey) {
+                testResults.test2 = { success: false, message: 'API anahtarı yok' };
+                updateResults();
+                return;
+            }
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+                log(`İstek gönderiliyor: ${url.replace(apiKey, 'API_KEY')}`, 'info');
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || 'API hatası');
+                }
+
+                const models = data.models || [];
+                const modelNames = models.map(m => m.name).join(', ');
+                
+                testResults.test2 = { 
+                    success: true, 
+                    message: `${models.length} model bulundu`,
+                    data: modelNames
+                };
+                
+                log(`✅ ${models.length} model listelendi`, 'success');
+                log(`Modeller: ${modelNames}`, 'info');
+                
+            } catch (error) {
+                testResults.test2 = { success: false, message: error.message };
+                log(`❌ Model listesi alınamadı: ${error.message}`, 'error');
+            }
+            
+            updateResults();
+        }
+
+        async function test3() {
+            await testModel('gemini-pro', 'v1beta', 'TEST 3');
+        }
+
+        async function test4() {
+            await testModel('gemini-1.5-flash', 'v1', 'TEST 4');
+        }
+
+        async function test5() {
+            await testModel('gemini-1.5-flash', 'v1beta', 'TEST 5');
+        }
+
+        async function test6() {
+            await testModel('gemini-1.5-pro', 'v1beta', 'TEST 6');
+        }
+
+        async function testModel(model, version, testName) {
+            log(`${testName}: ${model} (${version})`, 'info');
+            
+            if (!apiKey) {
+                testResults[testName.toLowerCase().replace(' ', '')] = { 
+                    success: false, 
+                    message: 'API anahtarı yok' 
+                };
+                updateResults();
+                return;
+            }
+
+            const url = `https://generativelanguage.googleapis.com/${version}/models/${model}:generateContent?key=${apiKey}`;
+            
+            log(`URL: ${url.replace(apiKey, 'API_KEY')}`, 'info');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: 'Say hello in one word' }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 10
+                        }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || `HTTP ${response.status}`);
+                }
+
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (text) {
+                    testResults[testName.toLowerCase().replace(' ', '')] = { 
+                        success: true, 
+                        message: `Başarılı! Yanıt: "${text}"`,
+                        model: model,
+                        version: version
+                    };
+                    log(`✅ ${model} ÇALIŞIYOR! Yanıt: "${text}"`, 'success');
+                } else {
+                    throw new Error('Yanıt boş');
+                }
+
+            } catch (error) {
+                testResults[testName.toLowerCase().replace(' ', '')] = { 
+                    success: false, 
+                    message: error.message,
+                    model: model,
+                    version: version
+                };
+                log(`❌ ${model} ÇALIŞMIYOR: ${error.message}`, 'error');
+            }
+
+            updateResults();
+        }
+
+        function updateResults() {
+            const resultsDiv = document.getElementById('results');
+            let html = '<table style="width:100%; border-collapse: collapse;">';
+            html += '<tr style="border-bottom: 2px solid #3e3e42;"><th style="text-align:left; padding:10px;">Test</th><th style="text-align:left; padding:10px;">Durum</th><th style="text-align:left; padding:10px;">Sonuç</th></tr>';
+            
+            Object.keys(testResults).forEach(key => {
+                const result = testResults[key];
+                const status = result.success ? 
+                    '<span class="status ok">✓ BAŞARILI</span>' : 
+                    '<span class="status fail">✗ BAŞARISIZ</span>';
+                
+                html += `<tr style="border-bottom: 1px solid #3e3e42;">
+                    <td style="padding:10px;">${key.toUpperCase()}</td>
+                    <td style="padding:10px;">${status}</td>
+                    <td style="padding:10px;">${result.message}</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            resultsDiv.innerHTML = html;
+        }
+
+        function generateRecommendations() {
+            const recDiv = document.getElementById('recommendations');
+            let recommendations = [];
+
+            // Hangi testler başarılı?
+            const successfulTests = Object.keys(testResults).filter(k => testResults[k].success);
+            
+            if (successfulTests.length === 0) {
+                recommendations.push('❌ <strong>HİÇBİR TEST BAŞARILI DEĞİL!</strong>');
+                recommendations.push('• API anahtarınız geçersiz olabilir');
+                recommendations.push('• Yeni bir API anahtarı oluşturun: <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>');
+                recommendations.push('• API kotanız dolmuş olabilir');
+            } else {
+                recommendations.push(`✅ <strong>${successfulTests.length} test başarılı!</strong>`);
+                
+                successfulTests.forEach(test => {
+                    const result = testResults[test];
+                    if (result.model) {
+                        recommendations.push(`• <strong>${result.model}</strong> modelini <code>${result.version}</code> ile kullanabilirsiniz`);
+                    }
+                });
+
+                // En iyi çalışan modeli bul
+                const workingModels = successfulTests
+                    .map(t => testResults[t])
+                    .filter(r => r.model);
+
+                if (workingModels.length > 0) {
+                    const best = workingModels[0];
+                    recommendations.push('');
+                    recommendations.push(`<strong>📌 ÖNERİLEN KONFİGÜRASYON:</strong>`);
+                    recommendations.push(`<pre>const MODEL = '${best.model}';
+const API_URL = 'https://generativelanguage.googleapis.com/${best.version}/models/${best.model}:generateContent';</pre>`);
+                }
+            }
+
+            recDiv.innerHTML = recommendations.join('<br>');
+            log('=== TEST RAPORU OLUŞTURULDU ===', 'success');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Sayfa yüklendiğinde
+        window.onload = function() {
+            loadApiKey();
+            log('Test sistemi hazır. API anahtarınızı girin ve testleri başlatın.', 'info');
+        };
+    </script>
+</body>
+</html>

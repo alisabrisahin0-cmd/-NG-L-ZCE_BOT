@@ -1,0 +1,101 @@
+{
+  "name": "ÜSTAT APP - İngilizce Öğrenme Platformu",
+  "short_name": "ÜSTAT APP",
+  "description": "AI destekli kişiselleştirilmiş İngilizce öğrenme platformu. Grammar Guardian, Gamification ve Google Keep entegrasyonu ile akıllı öğrenme deneyimi.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#4F46E5",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "tr",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "./assets/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./assets/screenshot1.png",
+      "sizes": "540x720",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/screenshot2.png",
+      "sizes": "540x720",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "AI Konuşma",
+      "short_name": "AI Chat",
+      "description": "AI ile İngilizce pratik yap",
+      "url": "/?module=ai-chat",
+      "icons": [{ "src": "./assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Kelime Çalış",
+      "short_name": "Vocabulary",
+      "description": "Flashcard ile kelime öğren",
+      "url": "/?module=vocabulary",
+      "icons": [{ "src": "./assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Gramer",
+      "short_name": "Grammar",
+      "description": "Gramer egzersizleri",
+      "url": "/?module=grammar",
+      "icons": [{ "src": "./assets/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

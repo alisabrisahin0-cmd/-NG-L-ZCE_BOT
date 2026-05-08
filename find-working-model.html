@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gemini - Çalışan Modelleri Bul</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .box {
+            background: #252526;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007acc;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #005a9e; }
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #3c3c3c;
+            border: 1px solid #555;
+            color: #d4d4d4;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        pre {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+        .model-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #1e1e1e;
+            border-radius: 4px;
+            border-left: 3px solid #4ec9b0;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #4ec9b0;">🔍 Gemini - generateContent Destekleyen Modeller</h1>
+    
+    <div class="box">
+        <h2>API Anahtarı</h2>
+        <input type="password" id="apiKey" placeholder="API anahtarınızı girin">
+        <button onclick="findWorkingModels()">🚀 Çalışan Modelleri Bul</button>
+    </div>
+
+    <div class="box">
+        <h2>📊 Sonuçlar</h2>
+        <div id="results">Henüz test edilmedi...</div>
+    </div>
+
+    <div class="box">
+        <h2>💡 Kullanım Kodu</h2>
+        <div id="code"></div>
+    </div>
+
+    <script>
+        async function findWorkingModels() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const resultsDiv = document.getElementById('results');
+            const codeDiv = document.getElementById('code');
+            
+            if (!apiKey) {
+                resultsDiv.innerHTML = '<span class="error">❌ API anahtarı girin!</span>';
+                return;
+            }
+
+            resultsDiv.innerHTML = '<p>🔄 Modeller taranıyor...</p>';
+            codeDiv.innerHTML = '';
+
+            try {
+                // 1. Tüm modelleri listele
+                const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+                const listResponse = await fetch(listUrl);
+                const listData = await listResponse.json();
+
+                if (!listResponse.ok) {
+                    throw new Error(listData.error?.message || 'Model listesi alınamadı');
+                }
+
+                const allModels = listData.models || [];
+                resultsDiv.innerHTML = `<p class="success">✅ ${allModels.length} model bulundu. generateContent destekleyenler filtreleniyor...</p>`;
+
+                // 2. generateContent destekleyenleri filtrele
+                const workingModels = allModels.filter(model => {
+                    const methods = model.supportedGenerationMethods || [];
+                    return methods.includes('generateContent');
+                });
+
+                if (workingModels.length === 0) {
+                    resultsDiv.innerHTML += '<p class="error">❌ generateContent destekleyen model bulunamadı!</p>';
+                    return;
+                }
+
+                // 3. Sonuçları göster
+                let html = `<p class="success">✅ ${workingModels.length} çalışan model bulundu:</p>`;
+                
+                workingModels.forEach(model => {
+                    const modelName = model.name.replace('models/', '');
+                    html += `<div class="model-item">
+                        <strong>${modelName}</strong><br>
+                        <small>Display Name: ${model.displayName || 'N/A'}</small><br>
+                        <small>Description: ${model.description || 'N/A'}</small>
+                    </div>`;
+                });
+
+                resultsDiv.innerHTML = html;
+
+                // 4. İlk çalışan modeli test et
+                const firstModel = workingModels[0].name.replace('models/', '');
+                await testModel(firstModel, apiKey, codeDiv);
+
+            } catch (error) {
+                resultsDiv.innerHTML = `<span class="error">❌ Hata: ${error.message}</span>`;
+                console.error(error);
+            }
+        }
+
+        async function testModel(modelName, apiKey, codeDiv) {
+            codeDiv.innerHTML = '<p>🧪 Model test ediliyor...</p>';
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: 'Say hello' }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error?.message || 'Test başarısız');
+                }
+
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    codeDiv.innerHTML = `
+                        <p class="success">✅ Model test edildi ve ÇALIŞIYOR!</p>
+                        <p><strong>Test Yanıtı:</strong> "${text}"</p>
+                        <h3>📋 utils/api.js İçin Kod:</h3>
+                        <pre>// Gemini API implementation
+async geminiChat(message, systemPrompt) {
+  const MODEL = '${modelName}';
+  const API_URL = \`https://generativelanguage.googleapis.com/v1beta/models/\${MODEL}:generateContent\`;
+  const apiKey = this.getCurrentApiKey();
+  
+  const prompt = systemPrompt
+    ? \`\${systemPrompt}\\n\\nUser: \${message}\`
+    : message;
+
+  try {
+    const response = await fetch(\`\${API_URL}?key=\${apiKey}\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024
+        }
+      })
+    });
+
+    const data = await response.json();
+    console.log('Gemini response:', data);
+
+    if (!response.ok) {
+      console.error('Gemini API Error Response:', data);
+      throw new Error(data?.error?.message || 'Gemini API hatası');
+    }
+
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) {
+      console.error('Invalid Gemini response:', data);
+      throw new Error('Gemini boş yanıt döndürdü');
+    }
+
+    return text;
+
+  } catch (error) {
+    console.error('Gemini API Error:', error);
+    throw new Error(\`Gemini hatası: \${error.message}\`);
+  }
+}</pre>
+                        <p><strong>Bu kodu utils/api.js dosyasındaki geminiChat() fonksiyonuna yapıştırın!</strong></p>
+                    `;
+                } else {
+                    throw new Error('Yanıt boş');
+                }
+
+            } catch (error) {
+                codeDiv.innerHTML = `<span class="error">❌ Test başarısız: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>
